@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
+public class Cliente
+{
+    public int NumeroCliente { get; set; }
+    public DateTime HoraEntradaFila { get; set; }
+}
+
+public class Funcionario
+{
+    public int NumeroFuncionario { get; set; }
+}
+
+public class SistemaAtendimentoFilas
+{
+    private Queue<Cliente> filaClientes;
+    private List<Funcionario> funcionarios;
+
+    public SistemaAtendimentoFilas(int numFuncionarios)
+    {
+        filaClientes = new Queue<Cliente>();
+        funcionarios = new List<Funcionario>();
+
+        for (int i = 1; i <= numFuncionarios; i++)
+        {
+            funcionarios.Add(new Funcionario { NumeroFuncionario = i });
+        }
+    }
+
+    public void AdicionarCliente(Cliente cliente)
+    {
+        cliente.HoraEntradaFila = DateTime.Now;
+        filaClientes.Enqueue(cliente);
+        Console.WriteLine($"Cliente {cliente.NumeroCliente} entrou na fila.");
+    }
+
+    public void AtenderClientes()
+    {
+        while (filaClientes.Count > 0)
+        {
+            Cliente cliente = filaClientes.Dequeue();
+            int tempoAtendimento = new Random().Next(1, 6); 
+            Thread.Sleep(tempoAtendimento * 1000);
+            TimeSpan tempoEspera = DateTime.Now - cliente.HoraEntradaFila;
+            Console.WriteLine($"Cliente {cliente.NumeroCliente} atendido pelo Funcionário {funcionarios[0].NumeroFuncionario} em {tempoAtendimento} segundos. Tempo de espera: {tempoEspera.TotalSeconds} segundos.");
+        }
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        int numFuncionarios = 2; 
+        SistemaAtendimentoFilas sistemaAtendimento = new SistemaAtendimentoFilas(numFuncionarios);
+
+        for (int i = 1; i <= 10; i++)
+        {
+            Cliente cliente = new Cliente { NumeroCliente = i };
+            sistemaAtendimento.AdicionarCliente(cliente);
+        }
+
+        sistemaAtendimento.AtenderClientes();
+
+        Console.WriteLine("Todos os clientes foram atendidos.");
+    }
+}
